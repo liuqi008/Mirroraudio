@@ -10,19 +10,18 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
+
       - name: Restore
         run: dotnet restore ./Mirror2Out_SpdifMaster.csproj
-      - name: Build x64
-        run: dotnet build ./Mirror2Out_SpdifMaster.csproj -c Release /p:PlatformTarget=x64
-      - name: Collect artifacts
-        shell: pwsh
-        run: |
-          New-Item -ItemType Directory -Force -Path artifacts | Out-Null
-          Get-ChildItem -Recurse -Include Mirror2Out.exe |
-            Where-Object { $_.FullName -match '\\bin\\Release\\' } |
-            Copy-Item -Destination artifacts -Force
-      - name: Upload
+
+      # 用 publish 生成包含所有依赖DLL的目录
+      - name: Publish x64 (framework-dependent)
+        run: dotnet publish ./Mirror2Out_SpdifMaster.csproj -c Release -r win-x64 --self-contained false
+
+      # 直接把 publish 目录整体打包上传（里面有 exe 和 NAudio.Wasapi.dll 等依赖）
+      - name: Upload artifact (publish folder)
         uses: actions/upload-artifact@v4
         with:
-          name: Mirror2Out-x64
-          path: artifacts
+          name: Mirror2Out-win-x64
+          path: |
+            **/bin/Release/*/publish/**

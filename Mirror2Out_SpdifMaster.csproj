@@ -5,6 +5,7 @@
     <TargetFramework>net48</TargetFramework>
     <AssemblyName>Mirror2Out</AssemblyName>
     <RootNamespace>Mirror2Out</RootNamespace>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="NAudio" Version="2.2.1" />

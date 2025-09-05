@@ -10,23 +10,19 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
-
       - name: Restore
         run: dotnet restore ./Mirror2Out_SpdifMaster.csproj
-
-      # 显式指定发布输出目录，避免找不到路径
-      - name: Publish x64 (framework-dependent)
-        run: dotnet publish ./Mirror2Out_SpdifMaster.csproj -c Release -r win-x64 --self-contained false -o publish/win-x64
-
-      # 验证一下发布目录里确实有 exe 和依赖
-      - name: List publish dir
+      - name: Build x64
+        run: dotnet build ./Mirror2Out_SpdifMaster.csproj -c Release /p:PlatformTarget=x64
+      - name: Collect artifacts
         shell: pwsh
         run: |
-          Get-ChildItem -Recurse publish\win-x64 | Write-Host
-
-      # 上传整个发布目录（包含 exe 和 NAudio.*.dll）
-      - name: Upload artifact
+          New-Item -ItemType Directory -Force -Path artifacts | Out-Null
+          Get-ChildItem -Recurse -Include Mirror2Out.exe |
+            Where-Object { $_.FullName -match '\\bin\\Release\\' } |
+            Copy-Item -Destination artifacts -Force
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: Mirror2Out-win-x64
-          path: publish/win-x64/**
+          name: Mirror2Out-x64
+          path: artifacts

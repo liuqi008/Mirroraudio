@@ -3,6 +3,7 @@
     <OutputType>WinExe</OutputType>
     <UseWindowsForms>true</UseWindowsForms>
     <TargetFramework>net48</TargetFramework>
+    <!-- 如需兼容更老编译器，可删除 LangVersion -->
     <LangVersion>latest</LangVersion>
     <AssemblyName>Mirror2Out</AssemblyName>
     <RootNamespace>Mirror2Out</RootNamespace>

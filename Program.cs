@@ -27,7 +27,7 @@ namespace Mirror2Out
     }
 
     [DataContract]
-    class AppSettings
+    public class AppSettings
     {
         [DataMember] public string InputDeviceId;
         [DataMember] public string MainDeviceId;

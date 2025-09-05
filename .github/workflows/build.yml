@@ -1,0 +1,28 @@
+name: Build Mirror2Out
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Restore
+        run: dotnet restore ./Mirror2Out_SpdifMaster.csproj
+      - name: Build x64
+        run: dotnet build ./Mirror2Out_SpdifMaster.csproj -c Release /p:PlatformTarget=x64
+      - name: Collect artifacts
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts | Out-Null
+          Get-ChildItem -Recurse -Include Mirror2Out.exe |
+            Where-Object { $_.FullName -match '\\bin\\Release\\' } |
+            Copy-Item -Destination artifacts -Force
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: Mirror2Out-x64
+          path: artifacts

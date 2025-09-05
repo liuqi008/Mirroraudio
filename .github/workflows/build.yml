@@ -10,19 +10,24 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
+
       - name: Restore
         run: dotnet restore ./Mirror2Out_SpdifMaster.csproj
+
       - name: Build x64
-        run: dotnet build ./Mirror2Out_SpdifMaster.csproj -c Release /p:PlatformTarget=x64
-      - name: Collect artifacts
+        run: dotnet build ./Mirror2Out_SpdifMaster.csproj -c Release /p:PlatformTarget=x64 /p:GenerateRuntimeConfigurationFiles=true
+
+      - name: Package full output
         shell: pwsh
         run: |
+          $outDir = Join-Path $pwd 'bin\Release\net48'
+          if (-not (Test-Path $outDir)) { Write-Error "Output not found: $outDir"; exit 1 }
           New-Item -ItemType Directory -Force -Path artifacts | Out-Null
-          Get-ChildItem -Recurse -Include Mirror2Out.exe |
-            Where-Object { $_.FullName -match '\\bin\\Release\\' } |
-            Copy-Item -Destination artifacts -Force
-      - name: Upload
+          Copy-Item "$outDir\*" artifacts -Recurse -Force
+          Write-Host "Packed files:"; Get-ChildItem artifacts | % { Write-Host " - " $_.Name }
+
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Mirror2Out-x64
+          name: Mirror2Out-x64-net48
           path: artifacts
